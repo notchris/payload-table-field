@@ -3,7 +3,7 @@
 
 ### Features:
 
-- Adds a visual editor component to your collections and globals:
+- Display / Edit data in a table
 
 ## Installation
 
