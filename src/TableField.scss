@@ -1,0 +1,107 @@
+@import '~payload/scss';
+
+.table-field .table {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: scroll;
+  overflow-y: hidden;
+  margin-bottom: 0px;
+}
+
+.table-field .table tbody tr:nth-child(odd) {
+  background: var(--theme-elevation-50);
+}
+
+.table-field .table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.table-field .table th {
+  padding-bottom: 0.75rem;
+  padding-top: 0.75rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  text-transform: uppercase;
+}
+
+.sort-header {
+  display: flex;
+}
+.sort-controls {
+  display: flex;
+}
+
+.table-field .table th>div {
+  font-weight: 700;
+}
+
+.table-field .table tfoot {
+  color: gray;
+}
+
+.table-field .table tfoot th {
+  font-weight: normal;
+}
+
+/** Pagination **/
+
+.table-field-pagination {
+  display: flex;
+  gap: 4px;
+
+}
+
+.table-field-pagination button {
+  display: flex;
+  align-items: center;
+}
+
+.table-field-pagination button.btn--disabled svg {
+  opacity: 0.3;
+}
+
+.table-field-pagination .pagination-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+}
+
+.table-field-pagination .goto {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.table-field-pagination .goto .divider {
+  padding: 0 10px 0 0;
+}
+
+.table-field-pagination .goto .goto-label {
+  padding: 0 10px 0 0;
+}
+
+.table-field-pagination .goto input {
+  width: 6em;
+  padding: 0.4807692308rem 0.9615384615rem;
+}
+
+.table-field-controls .per-page {
+  display: flex;
+  align-items: center;
+  gap: 2em;
+}
+
+.table-field-controls select {
+  border: none;
+  font-weight: bold;
+}
+
+.table-field-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4px;
+}
