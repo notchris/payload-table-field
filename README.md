@@ -3,7 +3,10 @@
 
 ### Features:
 
-- Display / Edit data in a table
+- Display / Edit data using React Table[React Table](https://tanstack.com/table/latest)
+
+![image](https://github.com/notchris/payload-table-field/blob/main/example.png?raw=true)
+
 
 ## Installation
 
