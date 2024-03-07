@@ -4,6 +4,9 @@
 ### Features:
 
 - Display / Edit data using [React Table](https://tanstack.com/table/latest)
+- Pagination
+- Sorting
+
 
 ![image](https://github.com/notchris/payload-table-field/blob/main/example.png?raw=true)
 
@@ -44,9 +47,16 @@ const Examples: CollectionConfig = {
         defaultValue: mockData,
       },
       {
+        pagination: true // Enable pagination?,
+        paginationPageSize: 10 // Default pagination page size,
+        paginationPageSizes: [5, 10, 25, 50, 100] // Available pagination page sizes,
         editable: false, // Allow cells to be edited?
         columns: [
-          { key: 'id', name: 'ID', enableSorting: true }, // Allow column to be sorted?
+          {
+            key: 'id',
+            name: 'ID',
+            enableSorting: true // Allow this column to be sorted
+          },
           { key: 'title', name: 'Title' },
           { key: 'year', name: 'Year' },
         ],
@@ -60,4 +70,4 @@ export default Examples
 
 ### Note
 
-This plugin is still in development!
+While this plugin is still in development, the basic feature set of React Table has been implemented.

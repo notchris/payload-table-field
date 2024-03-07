@@ -21,6 +21,8 @@ const Examples: CollectionConfig = {
         defaultValue: mockData,
       },
       {
+        pagination: true,
+        paginationPageSize: 10,
         editable: false, // Allow cells to be edited?
         columns: [
           { key: 'id', name: 'ID', enableSorting: true },

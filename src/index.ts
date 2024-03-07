@@ -8,6 +8,7 @@ export const tableField = (
   tableOptions: Omit<TableOptions<unknown>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
     columns: Record<string, any>
     editable?: boolean
+    pagination?: boolean
   },
 ): JSONField => {
   return {

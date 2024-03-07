@@ -33,6 +33,10 @@ type TableFieldProps = Props & {
   tableOptions: Omit<TableOptions<any>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
     columns: Record<string, any>
     editable?: boolean
+    pagination?: boolean
+    paginationPageSize?: number
+    paginationPageIndex?: number
+    paginationPageSizes?: number[]
   }
 }
 
@@ -68,8 +72,8 @@ const TableField: React.FC<TableFieldProps> = ({
   // const initialRows: readonly any[] = [...value]
 
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
+    pageIndex: tableOptions.paginationPageIndex || 0,
+    pageSize: tableOptions.paginationPageSize || 10,
   })
   const [sorting, setSorting] = useState<SortingState>([])
   const [data, setData] = useState(() => [...value])
@@ -123,32 +127,34 @@ const TableField: React.FC<TableFieldProps> = ({
     defaultColumn: tableOptions.editable ? defaultColumn : undefined,
     state: {
       sorting,
-      pagination,
+      pagination: tableOptions.pagination ? pagination : undefined,
     },
 
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
-    autoResetPageIndex,
-    meta: {
-      updateData: (rowIndex, columnId, value) => {
-        // Skip page index reset until after next rerender
-        skipAutoResetPageIndex()
-        setData(old =>
-          old.map((row, index) => {
-            if (index === rowIndex) {
-              return {
-                ...old[rowIndex]!,
-                [columnId]: value,
-              }
-            }
-            return row
-          }),
-        )
-      },
-    },
+    getPaginationRowModel: tableOptions.pagination ? getPaginationRowModel() : undefined,
+    onPaginationChange: tableOptions.pagination ? setPagination : undefined,
+    autoResetPageIndex: tableOptions.editable ? autoResetPageIndex : undefined,
+    meta: tableOptions.editable
+      ? {
+          updateData: (rowIndex, columnId, value) => {
+            // Skip page index reset until after next rerender
+            skipAutoResetPageIndex()
+            setData(old =>
+              old.map((row, index) => {
+                if (index === rowIndex) {
+                  return {
+                    ...old[rowIndex]!,
+                    [columnId]: value,
+                  }
+                }
+                return row
+              }),
+            )
+          },
+        }
+      : undefined,
     debugTable: true,
   })
 
@@ -229,87 +235,91 @@ const TableField: React.FC<TableFieldProps> = ({
           </tbody>
         </table>
       </div>
-
-      <div className="table-field-controls">
-        <div className="table-field-pagination">
-          <button
-            className={
-              'clickable-arrow' +
-              (!table.getCanPreviousPage() ? ' clickable-arrow--is-disabled' : '')
-            }
-            onClick={e => {
-              e.preventDefault()
-              table.previousPage()
-            }}
-            disabled={!table.getCanPreviousPage()}
-          >
-            <Chevron size="small" direction="left"></Chevron>
-          </button>
-          <button
-            className={
-              'clickable-arrow' + (!table.getCanNextPage() ? ' clickable-arrow--is-disabled' : '')
-            }
-            onClick={e => {
-              e.preventDefault()
-              table.nextPage()
-            }}
-            disabled={!table.getCanNextPage()}
-          >
-            <Chevron size="small" direction="right"></Chevron>
-          </button>
-
-          <div className="pagination-label">
-            <div>Page</div>
-            <strong>
-              {table.getState().pagination.pageIndex + 1} of {table.getPageCount().toLocaleString()}
-            </strong>
-          </div>
-
-          <div className="goto">
-            <span className="divider">|</span>
-            <span className="goto-label">Page: </span>
-            <input
-              type="number"
-              defaultValue={table.getState().pagination.pageIndex + 1}
-              onChange={e => {
-                const page = e.target.value ? Number(e.target.value) - 1 : 0
-                table.setPageIndex(page)
+      {tableOptions.pagination ? (
+        <div className="table-field-controls">
+          <div className="table-field-pagination">
+            <button
+              className={
+                'clickable-arrow' +
+                (!table.getCanPreviousPage() ? ' clickable-arrow--is-disabled' : '')
+              }
+              onClick={e => {
+                e.preventDefault()
+                table.previousPage()
               }}
-              className="goto-input"
-            />
+              disabled={!table.getCanPreviousPage()}
+            >
+              <Chevron size="small" direction="left"></Chevron>
+            </button>
+            <button
+              className={
+                'clickable-arrow' + (!table.getCanNextPage() ? ' clickable-arrow--is-disabled' : '')
+              }
+              onClick={e => {
+                e.preventDefault()
+                table.nextPage()
+              }}
+              disabled={!table.getCanNextPage()}
+            >
+              <Chevron size="small" direction="right"></Chevron>
+            </button>
+
+            <div className="pagination-label">
+              <div>Page</div>
+              <strong>
+                {table.getState().pagination.pageIndex + 1} of{' '}
+                {table.getPageCount().toLocaleString()}
+              </strong>
+            </div>
+
+            <div className="goto">
+              <span className="divider">|</span>
+              <span className="goto-label">Page: </span>
+              <input
+                type="number"
+                defaultValue={table.getState().pagination.pageIndex + 1}
+                onChange={e => {
+                  const page = e.target.value ? Number(e.target.value) - 1 : 0
+                  table.setPageIndex(page)
+                }}
+                className="goto-input"
+              />
+            </div>
+          </div>
+
+          <div className="per-page">
+            <div>
+              {(
+                table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
+                1
+              ).toLocaleString()}
+              {' - '}
+              {(
+                table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
+                1 +
+                table.getState().pagination.pageSize -
+                1
+              ).toLocaleString()}{' '}
+              of {table.getRowCount().toLocaleString()}
+            </div>
+
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={e => {
+                table.setPageSize(Number(e.target.value))
+              }}
+            >
+              {(tableOptions.paginationPageSizes || [5, 10, 25, 50, 100]).map(pageSize => (
+                <option key={pageSize} value={pageSize}>
+                  Per Page: {pageSize}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-
-        <div className="per-page">
-          <div>
-            {(
-              table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-              1
-            ).toLocaleString()}
-            {' - '}
-            {(
-              table.getState().pagination.pageIndex * table.getState().pagination.pageSize +
-              1 +
-              table.getState().pagination.pageSize -
-              1
-            ).toLocaleString()}{' '}
-            of {table.getRowCount().toLocaleString()}
-          </div>
-
-          <select
-            value={table.getState().pagination.pageSize}
-            onChange={e => {
-              table.setPageSize(Number(e.target.value))
-            }}
-          >
-            {[5, 10, 25, 50, 100].map(pageSize => (
-              <option key={pageSize} value={pageSize}>
-                Per Page: {pageSize}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      ) : (
+        ''
+      )}
     </div>
   )
 }
