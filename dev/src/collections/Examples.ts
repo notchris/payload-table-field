@@ -21,8 +21,9 @@ const Examples: CollectionConfig = {
         defaultValue: mockData,
       },
       {
+        editable: false, // Allow cells to be edited?
         columns: [
-          { key: 'id', name: 'ID' },
+          { key: 'id', name: 'ID', enableSorting: true },
           { key: 'title', name: 'Title' },
           { key: 'year', name: 'Year' },
         ],
