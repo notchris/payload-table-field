@@ -18,7 +18,7 @@
 
 ## Basic Usage
 
-You can import and use the field without any additional setup.
+Import the field and then use it in your payload collection fields array.
 
 ```ts
 // import plugin
@@ -41,12 +41,12 @@ const Examples: CollectionConfig = {
       {
         name: 'table_example',
         label: 'Example Table - Movies',
-        // Replace with your data
         defaultValue: mockData,
       },
       {
+        editable: false, // Allow cells to be edited?
         columns: [
-          { key: 'id', name: 'ID' },
+          { key: 'id', name: 'ID', enableSorting: true }, // Allow column to be sorted?
           { key: 'title', name: 'Title' },
           { key: 'year', name: 'Year' },
         ],
@@ -58,6 +58,6 @@ const Examples: CollectionConfig = {
 export default Examples
 ```
 
-### Configuration
+### Note
 
-
+This plugin is still in development!
