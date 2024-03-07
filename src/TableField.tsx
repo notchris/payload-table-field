@@ -1,12 +1,4 @@
-import React, {
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useReducer,
-  useRef,
-  useState,
-} from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Props } from 'payload/components/fields/Json'
 import { Label, useField } from 'payload/components/forms'
 import Error from 'payload/dist/admin/components/forms/Error'
@@ -18,7 +10,6 @@ import {
   PaginationState,
   RowData,
   SortingState,
-  TableFeature,
   TableOptions,
   createColumnHelper,
   flexRender,
@@ -34,36 +25,14 @@ declare module '@tanstack/react-table' {
   }
 }
 
-// Give our default column cell renderer editing superpowers!
-const defaultColumn: Partial<ColumnDef<any>> = {
-  cell: ({ getValue, row: { index }, column: { id }, table }) => {
-    const initialValue = getValue()
-    // We need to keep and update the state of the cell normally
-    const [value, setValue] = useState(initialValue)
-
-    // When the input is blurred, we'll call our table meta's updateData function
-    const onBlur = () => {
-      table.options.meta?.updateData(index, id, value)
-    }
-
-    // If the initialValue is changed external, sync it up with our state
-    useEffect(() => {
-      setValue(initialValue)
-    }, [initialValue])
-
-    return (
-      <input value={value as string} onChange={e => setValue(e.target.value)} onBlur={onBlur} />
-    )
-  },
-}
-
 const columnHelper = createColumnHelper<any>()
 
 type TableFieldProps = Props & {
   path: string
   type: 'json'
-  tableOptions?: Omit<TableOptions<any>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
+  tableOptions: Omit<TableOptions<any>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
     columns: Record<string, any>
+    editable?: boolean
   }
 }
 
@@ -84,12 +53,11 @@ const TableField: React.FC<TableFieldProps> = ({
     [validate, required],
   )
 
-  const columns = useMemo<ColumnDef<any>[]>(
+  const columns = useMemo<ColumnDef<unknown>[]>(
     () =>
-      tableOptions?.columns.map((column: any) => {
+      tableOptions.columns.map((column: any) => {
         return columnHelper.accessor(column.key, {
-          cell: info => info.getValue(),
-          header: () => <span>{column.key}</span>,
+          enableSorting: column.enableSorting || false,
         })
       }),
     [],
@@ -105,6 +73,31 @@ const TableField: React.FC<TableFieldProps> = ({
   })
   const [sorting, setSorting] = useState<SortingState>([])
   const [data, setData] = useState(() => [...value])
+
+  // Give our default column cell renderer editing superpowers!
+  const defaultColumn: Partial<ColumnDef<unknown>> = {
+    cell: ({ getValue, row: { index }, column: { id }, table }) => {
+      const initialValue = getValue()
+      // We need to keep and update the state of the cell normally
+      const [value, setValue] = useState(initialValue)
+
+      // When the input is blurred, we'll call our table meta's updateData function
+      const onBlur = () => {
+        table.options.meta?.updateData(index, id, value)
+        data[index][id] = value
+        field.setValue(data)
+      }
+
+      // If the initialValue is changed external, sync it up with our state
+      useEffect(() => {
+        setValue(initialValue)
+      }, [initialValue])
+
+      return (
+        <input value={value as string} onChange={e => setValue(e.target.value)} onBlur={onBlur} />
+      )
+    },
+  }
 
   function useSkipper() {
     const shouldSkipRef = useRef(true)
@@ -127,11 +120,12 @@ const TableField: React.FC<TableFieldProps> = ({
   const table = useReactTable({
     data,
     columns,
-    defaultColumn,
+    defaultColumn: tableOptions.editable ? defaultColumn : undefined,
     state: {
       sorting,
       pagination,
     },
+
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -155,6 +149,7 @@ const TableField: React.FC<TableFieldProps> = ({
         )
       },
     },
+    debugTable: true,
   })
 
   return (
@@ -179,31 +174,36 @@ const TableField: React.FC<TableFieldProps> = ({
                           }}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
-                          <div
-                            className="sort-controls"
-                            {...{ onClick: header.column.getToggleSortingHandler() }}
-                          >
-                            <button
-                              className={
-                                'sort-column__desc sort-column__button ' +
-                                (header.column.getIsSorted() === 'desc'
-                                  ? 'sort-column--active'
-                                  : '')
-                              }
-                              type="button"
+
+                          {header.column.getCanSort() ? (
+                            <div
+                              className="sort-controls"
+                              {...{ onClick: header.column.getToggleSortingHandler() }}
                             >
-                              <Chevron direction="down"></Chevron>
-                            </button>
-                            <button
-                              className={
-                                'sort-column__asc sort-column__button ' +
-                                (header.column.getIsSorted() === 'asc' ? 'sort-column--active' : '')
-                              }
-                              type="button"
-                            >
-                              <Chevron direction="up"></Chevron>
-                            </button>
-                          </div>
+                              <button
+                                className={
+                                  'sort-column__desc sort-column__button ' +
+                                  (header.column.getIsSorted() === 'desc'
+                                    ? 'sort-column--active'
+                                    : '')
+                                }
+                                type="button"
+                              >
+                                <Chevron direction="down"></Chevron>
+                              </button>
+                              <button
+                                className={
+                                  'sort-column__asc sort-column__button ' +
+                                  (header.column.getIsSorted() === 'asc'
+                                    ? 'sort-column--active'
+                                    : '')
+                                }
+                                type="button"
+                              >
+                                <Chevron direction="up"></Chevron>
+                              </button>
+                            </div>
+                          ) : null}
                         </div>
                       )}
                     </th>

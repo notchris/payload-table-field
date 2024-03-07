@@ -1,12 +1,13 @@
-import { JSONField } from 'payload/types'
+import { Field, JSONField } from 'payload/dist/exports/types'
 import TableField from './TableField'
 import { TableOptions } from '@tanstack/table-core'
 import './TableField.scss'
 
 export const tableField = (
   options: Omit<JSONField, 'type'>,
-  tableOptions?: Omit<TableOptions<any>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
+  tableOptions: Omit<TableOptions<unknown>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
     columns: Record<string, any>
+    editable?: boolean
   },
 ): JSONField => {
   return {

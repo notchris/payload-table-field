@@ -37,6 +37,11 @@
   font-weight: 700;
 }
 
+.table-field .table tr>td>input {
+  border: 0px;
+  background-color: transparent;
+}
+
 .table-field .table tfoot {
   color: gray;
 }
