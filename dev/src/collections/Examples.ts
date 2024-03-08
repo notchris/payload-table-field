@@ -23,7 +23,9 @@ const Examples: CollectionConfig = {
       {
         pagination: true,
         paginationPageSize: 10,
-        editable: false, // Allow cells to be edited?
+        paginationPageSizes: [5, 10, 25, 50, 100],
+        editable: true,
+        rowSelection: true,
         columns: [
           { key: 'id', name: 'ID', enableSorting: true },
           { key: 'title', name: 'Title' },

@@ -6,6 +6,7 @@
 - Display / Edit data using [React Table](https://tanstack.com/table/latest)
 - Pagination
 - Sorting
+- Row Selection
 
 
 ![image](https://github.com/notchris/payload-table-field/blob/main/example.png?raw=true)
@@ -51,6 +52,7 @@ const Examples: CollectionConfig = {
         paginationPageSize: 10, // Default pagination page size
         paginationPageSizes: [5, 10, 25, 50, 100], // Available pagination page sizes
         editable: false, // Allow cells to be edited?
+        rowSelection: true, // Enable row selection
         columns: [
           {
             key: 'id',

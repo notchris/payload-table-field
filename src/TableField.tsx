@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { HTMLProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Props } from 'payload/components/fields/Json'
 import { Label, useField } from 'payload/components/forms'
 import Error from 'payload/dist/admin/components/forms/Error'
 
 import Chevron from 'payload/dist/admin/components/icons/Chevron'
+import Check from 'payload/dist/admin/components/icons/Check'
+import { Checkbox } from 'payload/components/forms'
 
 import {
   ColumnDef,
@@ -25,14 +27,13 @@ declare module '@tanstack/react-table' {
   }
 }
 
-const columnHelper = createColumnHelper<any>()
-
 type TableFieldProps = Props & {
   path: string
   type: 'json'
   tableOptions: Omit<TableOptions<any>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
     columns: Record<string, any>
     editable?: boolean
+    rowSelection?: boolean
     pagination?: boolean
     paginationPageSize?: number
     paginationPageIndex?: number
@@ -57,57 +58,116 @@ const TableField: React.FC<TableFieldProps> = ({
     [validate, required],
   )
 
+  /** Checkbox column definition  */
+  const checkboxColumn = {
+    id: 'select',
+    header: ({ table }: { table: any }) => (
+      <IndeterminateCheckbox
+        {...{
+          checked: table.getIsAllRowsSelected(),
+          indeterminate: table.getIsSomeRowsSelected(),
+          onChange: table.getToggleAllRowsSelectedHandler(),
+        }}
+      />
+    ),
+    cell: ({ row }: { row: any }) => (
+      <IndeterminateCheckbox
+        {...{
+          checked: row.getIsSelected(),
+          disabled: !row.getCanSelect(),
+          indeterminate: row.getIsSomeSelected(),
+          onChange: row.getToggleSelectedHandler(),
+        }}
+      />
+    ),
+  }
+
+  /** Create columns */
+  const columnHelper = createColumnHelper<any>()
   const columns = useMemo<ColumnDef<unknown>[]>(
-    () =>
-      tableOptions.columns.map((column: any) => {
+    () => [
+      ...(tableOptions.rowSelection ? [checkboxColumn] : []),
+      ...tableOptions.columns.map((column: any) => {
         return columnHelper.accessor(column.key, {
           enableSorting: column.enableSorting || false,
+          cell: ({ getValue, row: { index }, column: { id }, table }) => {
+            const initialValue = getValue()
+            const [value, setValue] = useState(initialValue)
+
+            const onBlur = () => {
+              table.options.meta?.updateData(index, id, value)
+              data[index][id] = value
+              field.setValue(data)
+            }
+
+            useEffect(() => {
+              setValue(initialValue)
+            }, [initialValue])
+
+            return (
+              <input
+                value={value as string}
+                onChange={e => setValue(e.target.value)}
+                onBlur={onBlur}
+              />
+            )
+          },
         })
       }),
+    ],
     [],
   )
 
+  /* Create checkbox for row selection */
+  function IndeterminateCheckbox({
+    indeterminate,
+    className = '',
+    ...rest
+  }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+    const ref = useRef<HTMLInputElement>(null!)
+
+    useEffect(() => {
+      if (typeof indeterminate === 'boolean') {
+        ref.current.indeterminate = !rest.checked && indeterminate
+      }
+    }, [ref, indeterminate])
+
+    return (
+      <div
+        className={
+          'checkbox-input ' + (rest.checked ? 'select-row__checkbox checkbox-input--checked' : '')
+        }
+      >
+        <div className="checkbox-input__input">
+          <input type="checkbox" ref={ref} className={className + ' cursor-pointer'} {...rest} />
+          {rest.checked ? <Check></Check> : ''}
+        </div>
+      </div>
+    )
+  }
+
+  /** Field setup */
   const field = useField<any[]>({ path, validate: memoizedValidate })
   const { value, showError, setValue, errorMessage } = field
-  // const initialRows: readonly any[] = [...value]
 
+  /** Pagination */
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: tableOptions.paginationPageIndex || 0,
     pageSize: tableOptions.paginationPageSize || 10,
   })
+
+  /** Row selection */
+  const [rowSelection, setRowSelection] = useState({})
+  /** Sorting */
   const [sorting, setSorting] = useState<SortingState>([])
+  /** Data */
   const [data, setData] = useState(() => [...value])
 
-  // Give our default column cell renderer editing superpowers!
-  const defaultColumn: Partial<ColumnDef<unknown>> = {
-    cell: ({ getValue, row: { index }, column: { id }, table }) => {
-      const initialValue = getValue()
-      // We need to keep and update the state of the cell normally
-      const [value, setValue] = useState(initialValue)
-
-      // When the input is blurred, we'll call our table meta's updateData function
-      const onBlur = () => {
-        table.options.meta?.updateData(index, id, value)
-        data[index][id] = value
-        field.setValue(data)
-      }
-
-      // If the initialValue is changed external, sync it up with our state
-      useEffect(() => {
-        setValue(initialValue)
-      }, [initialValue])
-
-      return (
-        <input value={value as string} onChange={e => setValue(e.target.value)} onBlur={onBlur} />
-      )
-    },
-  }
-
+  /** Skip pagination reset */
   function useSkipper() {
     const shouldSkipRef = useRef(true)
     const shouldSkip = shouldSkipRef.current
 
-    // Wrap a function with this to skip a pagination reset temporarily
     const skip = useCallback(() => {
       shouldSkipRef.current = false
     }, [])
@@ -118,28 +178,28 @@ const TableField: React.FC<TableFieldProps> = ({
 
     return [shouldSkip, skip] as const
   }
-
   const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper()
 
+  /** Create table */
   const table = useReactTable({
     data,
     columns,
-    defaultColumn: tableOptions.editable ? defaultColumn : undefined,
     state: {
+      rowSelection: tableOptions.rowSelection ? rowSelection : undefined,
       sorting,
       pagination: tableOptions.pagination ? pagination : undefined,
     },
-
-    onSortingChange: setSorting,
+    enableRowSelection: tableOptions.rowSelection,
+    onRowSelectionChange: tableOptions.rowSelection ? setRowSelection : undefined,
+    onSortingChange: tableOptions.rowSelection ? setSorting : undefined,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getSortedRowModel: tableOptions.rowSelection ? getSortedRowModel() : undefined,
     getPaginationRowModel: tableOptions.pagination ? getPaginationRowModel() : undefined,
     onPaginationChange: tableOptions.pagination ? setPagination : undefined,
     autoResetPageIndex: tableOptions.editable ? autoResetPageIndex : undefined,
     meta: tableOptions.editable
       ? {
           updateData: (rowIndex, columnId, value) => {
-            // Skip page index reset until after next rerender
             skipAutoResetPageIndex()
             setData(old =>
               old.map((row, index) => {
@@ -182,11 +242,9 @@ const TableField: React.FC<TableFieldProps> = ({
                           {flexRender(header.column.columnDef.header, header.getContext())}
 
                           {header.column.getCanSort() ? (
-                            <div
-                              className="sort-controls"
-                              {...{ onClick: header.column.getToggleSortingHandler() }}
-                            >
+                            <div className="sort-controls">
                               <button
+                                onClick={() => header.column.toggleSorting(true)}
                                 className={
                                   'sort-column__desc sort-column__button ' +
                                   (header.column.getIsSorted() === 'desc'
@@ -198,6 +256,7 @@ const TableField: React.FC<TableFieldProps> = ({
                                 <Chevron direction="down"></Chevron>
                               </button>
                               <button
+                                onClick={() => header.column.toggleSorting(false)}
                                 className={
                                   'sort-column__asc sort-column__button ' +
                                   (header.column.getIsSorted() === 'asc'
