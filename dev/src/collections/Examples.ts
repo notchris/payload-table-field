@@ -31,6 +31,7 @@ const Examples: CollectionConfig = {
           { key: 'title', name: 'Title' },
           { key: 'year', name: 'Year' },
         ],
+        debugTable: true,
       },
     ) as Field,
   ],

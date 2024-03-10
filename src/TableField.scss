@@ -116,3 +116,51 @@
 .table-field .table .checkbox-input {
   display:block;
 }
+
+.table-field .list-controls__wrap {
+  margin-bottom: 2rem;
+  max-height: 50px;
+}
+
+.table-field .search-filter {
+  width: 100%;
+}
+
+/** Filter buttons **/
+.table-field .list-controls__buttons-wrap button {
+  padding-left: 6px;
+  padding-right: 6px;
+}
+.table-field .list-controls__buttons-wrap .btn__label {
+  display: flex;
+  align-items:  center;
+  gap: 4px;
+}
+
+/** Column Visibility pills **/
+.table-field .column-visibility {
+  padding: 3rem 2em;
+  display: flex;
+  gap: 0.75rem;
+}
+.table-field .column-visibility button {
+  padding-left: 4px;
+  padding-right: 6px;
+  box-shadow: 0 0 0 1px var(--theme-elevation-200);
+}
+.table-field .column-visibility .btn__label {
+  display: flex;
+  align-items:  center;
+  gap: 2px;
+  text-transform: uppercase;
+}
+
+.column-toggle-pills {
+  display: flex;
+  gap: 4px;
+}
+
+.table-field .column-visibility button.column-selector__column--active {
+  background-color: transparent !important;
+  background: none !important;
+}

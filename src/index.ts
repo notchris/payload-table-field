@@ -2,10 +2,14 @@ import { Field, JSONField } from 'payload/dist/exports/types'
 import TableField from './TableField'
 import { TableOptions } from '@tanstack/table-core'
 import './TableField.scss'
+import { getPayload } from 'payload'
 
 export const tableField = (
   options: Omit<JSONField, 'type'>,
-  tableOptions: Omit<TableOptions<unknown>, 'rows' | 'columns' | 'data' | 'getCoreRowModel'> & {
+  tableOptions: Omit<
+    TableOptions<unknown>,
+    'rows' | 'columns' | 'data' | 'getCoreRowModel' | 'filterFns'
+  > & {
     columns: Record<string, any>
     editable?: boolean
     rowSelection?: boolean
@@ -13,6 +17,8 @@ export const tableField = (
     paginationPageSize?: number
     paginationPageIndex?: number
     paginationPageSizes?: number[]
+    // collection?: string
+    debugTable?: boolean
   },
 ): JSONField => {
   return {

@@ -45,6 +45,7 @@
   },
   "homepage": "https://github.com/notchris/payload-table-field#readme",
   "dependencies": {
+    "@tanstack/match-sorter-utils": "^8.11.8",
     "@tanstack/react-table": "^8.13.2"
   }
 }
