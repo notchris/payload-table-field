@@ -1,10 +1,13 @@
 {
   "name": "payload-table-field",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A table field (React Table) for Payload",
   "main": "src/index.ts",
   "peerDependencies": {
     "payload": "^2.0.0"
+  },
+  "publishConfig": {
+    "registry": "https://github.com/notchris/payload-table-field.git"
   },
   "devDependencies": {
     "@payloadcms/eslint-config": "^0.0.1",
@@ -48,4 +51,5 @@
     "@tanstack/match-sorter-utils": "^8.11.8",
     "@tanstack/react-table": "^8.13.2"
   }
+  
 }
