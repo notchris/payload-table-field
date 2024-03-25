@@ -9,6 +9,7 @@ import {
   FilterFn,
   PaginationState,
   RowData,
+  RowPinningState,
   SortingState,
   Table,
   TableOptions,
@@ -21,7 +22,13 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { checkboxColumn, fuzzyFilter, useSkipper } from './TableFieldHelpers'
+import {
+  checkboxColumn,
+  fuzzyFilter,
+  PinnedRow,
+  pinningColumn,
+  useSkipper,
+} from './TableFieldHelpers'
 import { RankingInfo } from '@tanstack/match-sorter-utils'
 import { TablePagination } from './TablePagination'
 import { TableControls } from './TableControls'
@@ -53,6 +60,7 @@ type TableFieldProps = Props & {
     columnOrder: Record<string, number>
     editable?: boolean
     rowSelection?: boolean
+    rowPinning?: boolean
     pagination?: boolean
     paginationPageSize?: number
     paginationPageIndex?: number
@@ -82,6 +90,7 @@ const TableField: React.FC<TableFieldProps> = ({
   const columnHelper = createColumnHelper<any>()
   const columns = useMemo<ColumnDef<unknown>[]>(
     () => [
+      ...(tableOptions.rowPinning ? [pinningColumn] : []),
       ...(tableOptions.rowSelection ? [checkboxColumn] : []),
       ...tableOptions.columns.map((column: any) => {
         return columnHelper.accessor(column.key, {
@@ -127,6 +136,14 @@ const TableField: React.FC<TableFieldProps> = ({
   /** Row selection */
   const [rowSelection, setRowSelection] = useState({})
 
+  /** Row Pinning */
+  const [rowPinning, setRowPinning] = React.useState<RowPinningState>({
+    top: [],
+    bottom: [],
+  })
+  const [keepPinnedRows, setKeepPinnedRows] = React.useState(true)
+  const [copyPinnedRows, setCopyPinnedRows] = React.useState(false)
+
   /** Sorting */
   const [sorting, setSorting] = useState<SortingState>([])
 
@@ -153,6 +170,7 @@ const TableField: React.FC<TableFieldProps> = ({
   const tableBaseConfig = {
     state: {
       rowSelection: tableOptions.rowSelection ? rowSelection : undefined,
+      rowPinning: tableOptions.rowPinning ? rowPinning : undefined,
       sorting,
       pagination: tableOptions.pagination ? pagination : undefined,
       columnVisibility,
@@ -162,6 +180,7 @@ const TableField: React.FC<TableFieldProps> = ({
     columnOrder: ['title', 'id', 'year'],
     enableRowSelection: tableOptions.rowSelection,
     onRowSelectionChange: tableOptions.rowSelection ? setRowSelection : undefined,
+    onRowPinningChange: tableOptions.rowPinning ? setRowPinning : undefined,
     onSortingChange: tableOptions.rowSelection ? setSorting : undefined,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnOrderChange: setColumnOrder,
@@ -195,6 +214,7 @@ const TableField: React.FC<TableFieldProps> = ({
           },
         }
       : undefined,
+    keepPinnedRows,
     debugTable: tableOptions.debugTable,
   }
 
@@ -220,6 +240,9 @@ const TableField: React.FC<TableFieldProps> = ({
         <table>
           <TableHeaders table={table}></TableHeaders>
           <tbody>
+            {table.getTopRows().map(row => (
+              <PinnedRow key={row.id} row={row} table={table} />
+            ))}
             {table.getRowModel().rows.map(row => {
               return (
                 <tr key={row.id}>
