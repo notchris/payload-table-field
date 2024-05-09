@@ -1,6 +1,6 @@
 {
   "name": "payload-table-field",
-  "version": "1.0.5",
+  "version": "1.0.7",
   "description": "A table field (React Table) for Payload",
   "main": "dist/index.js",
   "peerDependencies": {
@@ -27,12 +27,11 @@
     "webpack": "^5.90.3"
   },
   "scripts": {
+    "build": "tsc && yarn copy",
+    "copy": "copyfiles -u 1 \"src/**/*.scss\" dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/notchris/payload-table-field.git"
-  },
+
   "keywords": [
     "payload",
     "react-table",
