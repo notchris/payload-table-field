@@ -1,8 +1,8 @@
 {
   "name": "payload-table-field",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A table field (React Table) for Payload",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "peerDependencies": {
     "payload": "^2.0.0"
   },
