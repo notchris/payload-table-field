@@ -1,7 +1,7 @@
 import { JSONField } from 'payload/dist/exports/types'
 import TableField from './TableField'
 import { TableOptions } from '@tanstack/table-core'
-import './TableField.scss'
+import './TableField.module.scss'
 
 export const tableField = (
   options: Omit<JSONField, 'type'>,

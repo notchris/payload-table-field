@@ -6,9 +6,7 @@
   "peerDependencies": {
     "payload": "^2.0.0"
   },
-  "publishConfig": {
-    "registry": "https://github.com/notchris/payload-table-field.git"
-  },
+
   "devDependencies": {
     "@payloadcms/eslint-config": "^0.0.1",
     "@swc/jest": "^0.2.28",
