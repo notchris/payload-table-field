@@ -16,6 +16,7 @@ interface TableFiltersProps {
 
 export function TableFilters({ table }: TableFiltersProps) {
   const [conditions, setConditions] = useState<any[]>([])
+  //@ts-ignore
   const { i18n, t } = useTranslation('general')
   const plural = true
   const [fields, setFields] = useState<

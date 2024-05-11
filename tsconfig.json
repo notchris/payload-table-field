@@ -20,4 +20,8 @@
   "include": [
     "src/**/*",
   ],
+  "ts-node": {
+    "transpileOnly": true,
+    "swc": true
+  }
 }
