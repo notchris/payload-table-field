@@ -1,6 +1,6 @@
 {
   "name": "payload-table-field",
-  "version": "1.0.9",
+  "version": "1.1.0",
   "description": "A table field (React Table) for Payload",
   "main": "dist/index.js",
   "files": ["dist"],
