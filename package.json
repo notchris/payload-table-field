@@ -30,7 +30,7 @@
   },
   "scripts": {
     "build": "tsc && yarn copy",
-    "copy": "copyfiles -u 1 \"src/**/*.scss\" dist",
+    "copy": "copyfiles -u 1 \"src/**/*.css\" dist",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
