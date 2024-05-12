@@ -142,7 +142,7 @@ const TableField: React.FC<TableFieldProps> = ({
     bottom: [],
   })
   const [keepPinnedRows, setKeepPinnedRows] = React.useState(true)
-  const [copyPinnedRows, setCopyPinnedRows] = React.useState(false)
+  // const [copyPinnedRows, setCopyPinnedRows] = React.useState(false)
 
   /** Sorting */
   const [sorting, setSorting] = useState<SortingState>([])
@@ -214,7 +214,7 @@ const TableField: React.FC<TableFieldProps> = ({
           },
         }
       : undefined,
-    keepPinnedRows,
+    keepPinnedRows: tableOptions.rowPinning && keepPinnedRows,
     debugTable: tableOptions.debugTable,
   }
 
@@ -240,9 +240,8 @@ const TableField: React.FC<TableFieldProps> = ({
         <table>
           <TableHeaders table={table}></TableHeaders>
           <tbody>
-            {table.getTopRows().map(row => (
-              <PinnedRow key={row.id} row={row} table={table} />
-            ))}
+            {tableOptions.rowPinning &&
+              table.getTopRows().map(row => <PinnedRow key={row.id} row={row} table={table} />)}
             {table.getRowModel().rows.map(row => {
               return (
                 <tr key={row.id}>
