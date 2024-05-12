@@ -2,8 +2,6 @@ import { CollectionConfig, Field } from 'payload/types'
 //@ts-ignore
 import { tableField } from '../../../src/index'
 import mockData from '../mocks/mockData'
-// Example Collection - For reference only, this must be added to payload.config.ts to be used.
-
 const Examples: CollectionConfig = {
   slug: 'examples',
   admin: {
@@ -21,18 +19,20 @@ const Examples: CollectionConfig = {
         defaultValue: mockData,
       },
       {
-        pagination: true,
-        paginationPageSize: 10,
-        paginationPageSizes: [5, 10, 25, 50, 100],
-        editable: true,
-        rowSelection: true,
-        rowPinning: true,
+        pagination: true, // Enable pagination?
+        paginationPageSize: 10, // Default pagination page size
+        paginationPageSizes: [5, 10, 25, 50, 100], // Available pagination page sizes
+        editable: false, // Allow cells to be edited?
+        rowSelection: true, // Enable row selection
         columns: [
-          { key: 'id', name: 'ID', enableSorting: true },
+          {
+            key: 'id',
+            name: 'ID',
+            enableSorting: true, // Allow this column to be sorted
+          },
           { key: 'title', name: 'Title' },
           { key: 'year', name: 'Year' },
         ],
-        debugTable: true,
       },
     ) as Field,
   ],
